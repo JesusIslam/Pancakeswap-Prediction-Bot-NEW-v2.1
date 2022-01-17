@@ -1,3 +1,4 @@
+import { open } from "fs/promises";
 import { BigNumber } from "@ethersproject/bignumber";
 import { parseEther } from "@ethersproject/units";
 import { underline } from "chalk";
@@ -115,4 +116,12 @@ export const calculateTaxAmount = (amount: BigNumber | undefined) => {
   }
 
   return amount.div(50);
+};
+
+export const writeRecord = async (filePath: string, dateString: string, epoch: string, predictionValue: number) => {
+  const csvFile = await open(filePath, "a+");
+
+  await csvFile.appendFile(`${dateString}, ${epoch}, ${predictionValue}`);
+
+  await csvFile.close()
 };

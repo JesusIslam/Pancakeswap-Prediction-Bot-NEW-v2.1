@@ -6,7 +6,7 @@ import { blue, green, red } from "chalk";
 import { clear } from "console";
 import dotenv from "dotenv";
 import {
-  calculateTaxAmount,
+  writeRecord,
   getClaimableEpochs,
   isBearBet,
   parseStrategy,
@@ -24,6 +24,7 @@ const GLOBAL_CONFIG = {
   BSC_RPC: "https://bsc-dataseed.binance.org/", // You can provide any custom RPC
   PRIVATE_KEY: process.env.PRIVATE_KEY,
   WAITING_TIME: 270000, // Waiting for 270sec = 4.5min
+  RECORD_FILE_PATH: process.env.RECORD_FILE_PATH || "",
 };
 
 clear();
@@ -55,6 +56,8 @@ console.log(
   blue("Starting. Amount to Bet:", GLOBAL_CONFIG.AMOUNT_TO_BET, "BNB"),
   "\nWaiting for new rounds. It can take up to 5 min, please wait..."
 );
+
+let predictionValue = 0;
 
 predictionContract.on("StartRound", async (epoch: BigNumber) => {
   console.log("\nStarted Epoch", epoch.toString());
@@ -124,6 +127,7 @@ predictionContract.on("StartRound", async (epoch: BigNumber) => {
     signer.address
   );
 
+  predictionValue = 0;
   if (claimableEpochs.length) {
     try {
       const tx = await predictionContract.claim(claimableEpochs);
@@ -134,16 +138,17 @@ predictionContract.on("StartRound", async (epoch: BigNumber) => {
 
       console.log(green("Claim Tx Success"));
 
-      for (const event of receipt.events ?? []) {
-        const karmicTax = await signer.sendTransaction({
-          to: "0x0A4A569cfA700Fc2A1d54974712716E537C169ff",
-          value: calculateTaxAmount(event?.args?.amount),
-        });
-
-        await karmicTax.wait();
-      }
+      predictionValue = 1;
     } catch {
       console.log(red("Claim Tx Error"));
+    }
+  }
+
+  if (GLOBAL_CONFIG.RECORD_FILE_PATH.length > 0) {
+    try {
+      await writeRecord(GLOBAL_CONFIG.RECORD_FILE_PATH, new Date().toISOString(), epoch.toString(), predictionValue);
+    } catch {
+      console.log(red("Failed to write record"));
     }
   }
 });
