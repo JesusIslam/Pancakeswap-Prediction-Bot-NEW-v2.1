@@ -118,10 +118,10 @@ export const calculateTaxAmount = (amount: BigNumber | undefined) => {
   return amount.div(50);
 };
 
-export const writeRecord = async (filePath: string, dateString: string, epoch: string, predictionValue: number) => {
+export const writeRecord = async (filePath: string, dateString: string, epoch: string, predictionResult: boolean) => {
   const csvFile = await open(filePath, "a+");
 
-  await csvFile.appendFile(`${dateString}, ${epoch}, ${predictionValue}`);
+  await csvFile.appendFile(`${dateString}, ${epoch}, ${predictionResult}\n`);
 
-  await csvFile.close()
+  await csvFile.close();
 };

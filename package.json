@@ -6,11 +6,13 @@
   "license": "MIT",
   "scripts": {
     "start": "ts-node ./src/index.ts",
+    "csv": "node ./csv.js",
     "cg": "ts-node ./src/candle-genie.ts",
     "test": "jest"
   },
   "dependencies": {
     "chalk": "^4.1.2",
+    "csv-parse": "^5.0.4",
     "dotenv": "^10.0.0",
     "ethers": "^5.5.2"
   },

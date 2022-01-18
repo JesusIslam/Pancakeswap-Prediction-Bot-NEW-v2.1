@@ -1349,6 +1349,11 @@
   dependencies:
     "cssom" "~0.3.6"
 
+"csv-parse@^5.0.4":
+  "integrity" "sha512-5AIdl8l6n3iYQYxan5djB5eKDa+vBnhfWZtRpJTcrETWfVLYN0WSj3L9RwvgYt+psoO77juUr8TG8qpfGZifVQ=="
+  "resolved" "https://registry.npmjs.org/csv-parse/-/csv-parse-5.0.4.tgz"
+  "version" "5.0.4"
+
 "data-urls@^2.0.0":
   "integrity" "sha512-X5eWTSXO/BJmpdIKCRuKUgSCgAN0OwliVK3yPKbwIWU1Tdw5BRajxlzMidvh+gwko9AfQ9zIj52pzF91Q3YAvQ=="
   "resolved" "https://registry.npmjs.org/data-urls/-/data-urls-2.0.0.tgz"

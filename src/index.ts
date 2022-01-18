@@ -59,6 +59,25 @@ console.log(
 
 let predictionValue = 0;
 
+predictionContract.on("EndRound", async (epoch: BigNumber) => {
+  const { lockPrice, closePrice } = await predictionContract.rounds(epoch);
+
+  let result = 0; // bear
+  if (closePrice > lockPrice) {
+    result = 1; // bull
+  }
+
+  const predictionResult = (result === predictionValue); 
+
+  if (GLOBAL_CONFIG.RECORD_FILE_PATH.length > 0) {
+    try {
+      await writeRecord(GLOBAL_CONFIG.RECORD_FILE_PATH, new Date().toISOString(), epoch.toString(), predictionResult);
+    } catch {
+      console.log(red("Failed to write record"));
+    }
+  }
+});
+
 predictionContract.on("StartRound", async (epoch: BigNumber) => {
   console.log("\nStarted Epoch", epoch.toString());
 
@@ -84,6 +103,9 @@ predictionContract.on("StartRound", async (epoch: BigNumber) => {
   }
 
   if (bearBet) {
+    // bear
+    predictionValue = 0;
+
     try {
       const tx = await predictionContract.betBear(epoch, {
         value: parseEther(GLOBAL_CONFIG.AMOUNT_TO_BET),
@@ -102,6 +124,9 @@ predictionContract.on("StartRound", async (epoch: BigNumber) => {
       );
     }
   } else {
+    // bull
+    predictionValue = 1;
+
     try {
       const tx = await predictionContract.betBull(epoch, {
         value: parseEther(GLOBAL_CONFIG.AMOUNT_TO_BET),
@@ -127,7 +152,6 @@ predictionContract.on("StartRound", async (epoch: BigNumber) => {
     signer.address
   );
 
-  predictionValue = 0;
   if (claimableEpochs.length) {
     try {
       const tx = await predictionContract.claim(claimableEpochs);
@@ -137,18 +161,8 @@ predictionContract.on("StartRound", async (epoch: BigNumber) => {
       const receipt = await tx.wait();
 
       console.log(green("Claim Tx Success"));
-
-      predictionValue = 1;
     } catch {
       console.log(red("Claim Tx Error"));
-    }
-  }
-
-  if (GLOBAL_CONFIG.RECORD_FILE_PATH.length > 0) {
-    try {
-      await writeRecord(GLOBAL_CONFIG.RECORD_FILE_PATH, new Date().toISOString(), epoch.toString(), predictionValue);
-    } catch {
-      console.log(red("Failed to write record"));
     }
   }
 });
